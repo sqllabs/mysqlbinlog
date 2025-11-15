@@ -1,14 +1,14 @@
 package base
 
 import (
-	"sync"
 	"path/filepath"
+	"sync"
 
-	"my2sql/dsql"
-	toolkits "my2sql/toolkits"
-	"github.com/siddontang/go-log/log"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"github.com/go-mysql-org/go-mysql/replication"
+	"github.com/siddontang/go-log/log"
+	"github.com/sqllabs/mysqlbinlog/dsql"
+	toolkits "github.com/sqllabs/mysqlbinlog/toolkits"
 )
 
 type BinEventHandlingIndx struct {
@@ -159,8 +159,7 @@ BinEventCheck:
 
 }
 
-
-func CheckBinHeaderCondition(cfg *ConfCmd, header *replication.EventHeader, currentBinlog string) (int) {
+func CheckBinHeaderCondition(cfg *ConfCmd, header *replication.EventHeader, currentBinlog string) int {
 	// process: 0, continue: 1, break: 2
 
 	myPos := mysql.Position{Name: currentBinlog, Pos: header.LogPos}
@@ -178,7 +177,7 @@ func CheckBinHeaderCondition(cfg *ConfCmd, header *replication.EventHeader, curr
 			return C_reBreak
 		}
 	}
-	
+
 	//fmt.Println(cfg.StartDatetime, cfg.StopDatetime, header.Timestamp)
 	if cfg.IfSetStartDateTime {
 

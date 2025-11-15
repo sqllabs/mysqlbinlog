@@ -2,11 +2,11 @@ package base
 
 import (
 	"fmt"
-	"github.com/siddontang/go-log/log"
 	"github.com/go-mysql-org/go-mysql/mysql"
-        "github.com/go-mysql-org/go-mysql/replication"
-	SQL "my2sql/sqlbuilder"
-	toolkits "my2sql/toolkits"
+	"github.com/go-mysql-org/go-mysql/replication"
+	"github.com/siddontang/go-log/log"
+	SQL "github.com/sqllabs/mysqlbinlog/sqlbuilder"
+	toolkits "github.com/sqllabs/mysqlbinlog/toolkits"
 	"strings"
 )
 

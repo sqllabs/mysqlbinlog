@@ -3,11 +3,11 @@ package base
 import (
 	"database/sql"
 	"fmt"
-	"strings"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/juju/errors"
 	"github.com/siddontang/go-log/log"
-	toolkits "my2sql/toolkits"
-	_ "github.com/go-sql-driver/mysql"
+	toolkits "github.com/sqllabs/mysqlbinlog/toolkits"
+	"strings"
 )
 
 const (
@@ -16,7 +16,6 @@ const (
 	KEY_BINLOG_POS_SEP = "/"
 	KEY_DB_TABLE_SEP   = "."
 	KEY_NONE_BINLOG    = "_"
-
 )
 
 var (
@@ -30,15 +29,15 @@ type DdlPosInfo struct {
 	DdlSql   string `json:"ddl_sql"`
 }
 
-//{colname1, colname2}
+// {colname1, colname2}
 type KeyInfo []string
 
 //type FieldInfo map[string]string //{"name":"col1", "type":"int"}
 
 type FieldInfo struct {
-	FieldName	string `json:"column_name"`
-	FieldType	string `json:"column_type"`
-	IsUnsigned	bool	`json:"is_unsigned"`
+	FieldName  string `json:"column_name"`
+	FieldType  string `json:"column_type"`
+	IsUnsigned bool   `json:"is_unsigned"`
 }
 
 type TblInfoJson struct {
@@ -73,8 +72,8 @@ type table struct {
 func GetMysqlUrl(cfg *ConfCmd) string {
 	var urlStr string
 	urlStr = fmt.Sprintf(
-			"%s:%s@tcp(%s:%d)/?autocommit=true&charset=utf8mb4,utf8,latin1&loc=Local&parseTime=true",
-			cfg.User, cfg.Passwd, cfg.Host, cfg.Port)
+		"%s:%s@tcp(%s:%d)/?autocommit=true&charset=utf8mb4,utf8,latin1&loc=Local&parseTime=true",
+		cfg.User, cfg.Passwd, cfg.Host, cfg.Port)
 	return urlStr
 
 }
@@ -118,9 +117,9 @@ func (this *TablesColumnsInfo) GetTbDefFromDb(cfg *ConfCmd, dbname string, tbnam
 
 func (this *TablesColumnsInfo) GetTableKeysInfo(db *sql.DB, dbName string, tbName string) error {
 	var (
-		ok                    bool
-		dbTbKeysInfo          map[string]map[string]map[string]KeyInfo = map[string]map[string]map[string]KeyInfo{}
-		primaryKeys           map[string]map[string]map[string]bool    = map[string]map[string]map[string]bool{}
+		ok           bool
+		dbTbKeysInfo map[string]map[string]map[string]KeyInfo = map[string]map[string]map[string]KeyInfo{}
+		primaryKeys  map[string]map[string]map[string]bool    = map[string]map[string]map[string]bool{}
 	)
 
 	if dbName == "" || tbName == "" {
@@ -139,7 +138,7 @@ func (this *TablesColumnsInfo) GetTableKeysInfo(db *sql.DB, dbName string, tbNam
 
 	rowColumns, err := rows.Columns()
 	if err != nil {
-		log.Errorf("get columns name err %v",err)
+		log.Errorf("get columns name err %v", err)
 		return errors.Trace(err)
 	}
 
@@ -155,7 +154,7 @@ func (this *TablesColumnsInfo) GetTableKeysInfo(db *sql.DB, dbName string, tbNam
 		| t     |          0 | ucd      |            2 | d           | A         |           0 |     NULL | NULL   | YES  | BTREE      |         |               |
 		+-------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
 	*/
-	
+
 	for rows.Next() {
 		data := make([]sql.RawBytes, len(rowColumns))
 		values := make([]interface{}, len(rowColumns))
@@ -165,7 +164,7 @@ func (this *TablesColumnsInfo) GetTableKeysInfo(db *sql.DB, dbName string, tbNam
 
 		err = rows.Scan(values...)
 		if err != nil {
-			log.Errorf("rows scan err %v",err)
+			log.Errorf("rows scan err %v", err)
 			return errors.Trace(err)
 		}
 
@@ -239,8 +238,7 @@ func (this *TablesColumnsInfo) GetTableKeysInfo(db *sql.DB, dbName string, tbNam
 	return nil
 }
 
-
-func  (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbname string) error{
+func (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbname string) error {
 	var (
 		dbTbFieldsInfo map[string][]FieldInfo = map[string][]FieldInfo{}
 	)
@@ -261,7 +259,7 @@ func  (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbnam
 
 	rowColumns, err := rows.Columns()
 	if err != nil {
-		log.Errorf("get rows columns err %v",err)
+		log.Errorf("get rows columns err %v", err)
 		return errors.Trace(err)
 	}
 
@@ -288,7 +286,7 @@ func  (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbnam
 		}
 		err = rows.Scan(values...)
 		if err != nil {
-			log.Errorf("rows scan err %v",err)
+			log.Errorf("rows scan err %v", err)
 			return errors.Trace(err)
 		}
 		_, ok := dbTbFieldsInfo[tbKey]
@@ -304,7 +302,6 @@ func  (this *TablesColumnsInfo) GetTableColumns(db *sql.DB, dbname string, tbnam
 	return nil
 
 }
-
 
 func (this *TablesColumnsInfo) GetTableInfoJson(schema string, table string) (*TblInfoJson, error) {
 	tbKey := GetAbsTableName(schema, table)

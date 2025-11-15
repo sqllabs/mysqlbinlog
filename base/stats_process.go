@@ -3,13 +3,13 @@ package base
 import (
 	//"os"
 	"fmt"
-	"sync"
 	"strings"
+	"sync"
 	//"path/filepath"
-	"my2sql/dsql"
-	constvar "my2sql/constvar"
+	"github.com/go-mysql-org/go-mysql/replication"
 	"github.com/siddontang/go-log/log"
-        "github.com/go-mysql-org/go-mysql/replication"
+	constvar "github.com/sqllabs/mysqlbinlog/constvar"
+	"github.com/sqllabs/mysqlbinlog/dsql"
 )
 
 var (
@@ -68,18 +68,15 @@ type BigLongTrxInfo struct {
 
 }
 
-
 func GetBigLongTrxPrintHeaderLine(headers []string) string {
 	//{"binlog", "starttime", "stoptime", "startpos", "stoppos", "rows","duration", "tables"}
 	return fmt.Sprintf("%-17s %-19s %-19s %-10s %-10s %-8s %-10s %s\n", ConvertStrArrToIntferfaceArrForPrint(headers)...)
 }
 
-
 func GetStatsPrintHeaderLine(headers []string) string {
 	//[binlog, starttime, stoptime, startpos, stoppos, inserts, updates, deletes, database, table,]
 	return fmt.Sprintf("%-17s %-19s %-19s %-10s %-10s %-8s %-8s %-8s %-15s %-20s\n", ConvertStrArrToIntferfaceArrForPrint(headers)...)
 }
-
 
 func GetDbTbAndQueryAndRowCntFromBinevent(ev *replication.BinlogEvent) (string, string, string, string, uint32) {
 	var (
@@ -144,17 +141,14 @@ func GetDbTbAndQueryAndRowCntFromBinevent(ev *replication.BinlogEvent) (string, 
 
 }
 
-
-
-
 func ProcessBinEventStats(cfg *ConfCmd, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	var (
-		lastPrintTime   uint32                         = 0
-		lastBinlog      string                         = ""
-		statsPrintArr   map[string]*BinEventStatsPrint = map[string]*BinEventStatsPrint{} // key=db.tb
-		oneBigLong      BigLongTrxInfo = BigLongTrxInfo{Statements: map[string]map[string]uint32{}}
+		lastPrintTime uint32                         = 0
+		lastBinlog    string                         = ""
+		statsPrintArr map[string]*BinEventStatsPrint = map[string]*BinEventStatsPrint{} // key=db.tb
+		oneBigLong    BigLongTrxInfo                 = BigLongTrxInfo{Statements: map[string]map[string]uint32{}}
 		//ddlInfoStr      string
 		printInterval   uint32 = uint32(cfg.PrintInterval)
 		bigTrxRowsLimit uint32 = uint32(cfg.BigTrxRowLimit)
@@ -203,13 +197,13 @@ func ProcessBinEventStats(cfg *ConfCmd, wg *sync.WaitGroup) {
 					}
 				}
 
-			} 
+			}
 		} else {
 			//big and long trx
-			if oneBigLong.Binlog == ""{
+			if oneBigLong.Binlog == "" {
 				oneBigLong.Binlog = st.Binlog
 			}
-			if oneBigLong.StartPos == 0{
+			if oneBigLong.StartPos == 0 {
 				oneBigLong.StartPos = st.StartPos
 			}
 
@@ -294,4 +288,3 @@ func GetBigLongTrxStatementsStr(st map[string]map[string]uint32) string {
 	}
 	return fmt.Sprintf("[%s]", strings.Join(strArr, " "))
 }
-

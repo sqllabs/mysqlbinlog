@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/dropbox/godropbox/errors"
-	sqltypes "my2sql/sqltypes"
+	sqltypes "github.com/sqllabs/mysqlbinlog/sqltypes"
 )
 
 type orderByClause struct {
@@ -702,7 +702,8 @@ func (exp *ifExpression) SerializeSql(out *bytes.Buffer) error {
 }
 
 // Returns a representation of an if-expression, of the form:
-//   IF (BOOLEAN TEST, VALUE-IF-TRUE, VALUE-IF-FALSE)
+//
+//	IF (BOOLEAN TEST, VALUE-IF-TRUE, VALUE-IF-FALSE)
 func If(conditional BoolExpression,
 	trueExpression Expression,
 	falseExpression Expression) Expression {
